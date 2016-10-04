@@ -11,7 +11,7 @@ type alias IRI =
     String
 
 
-{-| Defined here: https://mnot.github.io/I-D/rfc5988bis/#RFC3986
+{-| Defined here: https://mnot.github.io/I-D/rfc5988bis/
 -}
 type alias Link =
     { context : IRI
