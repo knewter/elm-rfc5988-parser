@@ -1,10 +1,23 @@
 module RFC5988 exposing (rfc5988, rfc5988s, Link, emptyLink)
 
+{-| A parser for [the draft for the replacement of RFC5988](https://mnot.github.io/I-D/rfc5988bis/)
+
+@docs Link
+
+# Constructing links
+@docs emptyLink
+
+# Parsers
+@docs rfc5988, rfc5988s
+-}
+
 import Dict exposing (Dict)
 import Combine exposing (parse, Parser, string, map, succeed, between, regex, sepBy, andThen)
 import Combine.Infix exposing ((<*), (*>))
 
 
+{-| Produce an empty link.
+-}
 emptyLink : Link
 emptyLink =
     { context = ""
@@ -28,11 +41,21 @@ type alias Link =
     }
 
 
+{-| Parser for a list of links
+-}
 rfc5988s : Parser (List Link)
 rfc5988s =
     sepBy (whitespace *> string "," <* whitespace) rfc5988
 
 
+{-| Parser for a link
+
+      parse rfc5988 "<http://urbit.org>; rel=\"start\"" ==
+      ( Ok { context = "", target = "http://urbit.org", relationType = "start", targetAttributes = Dict.empty }
+      , { input = "", position = 31 }
+      )
+
+-}
 rfc5988 : Parser Link
 rfc5988 =
     let
