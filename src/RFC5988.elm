@@ -12,8 +12,7 @@ module RFC5988 exposing (rfc5988, rfc5988s, Link, emptyLink)
 -}
 
 import Dict exposing (Dict)
-import Combine exposing (parse, Parser, string, map, succeed, between, regex, sepBy, andThen)
-import Combine.Infix exposing ((<*), (*>))
+import Combine exposing ((<*), (*>), parse, Parser, string, map, succeed, between, regex, sepBy, andThen)
 
 
 {-| Produce an empty link.
@@ -43,7 +42,7 @@ type alias Link =
 
 {-| Parser for a list of links
 -}
-rfc5988s : Parser (List Link)
+rfc5988s : Parser state (List Link)
 rfc5988s =
     sepBy (whitespace *> string "," <* whitespace) rfc5988
 
@@ -56,7 +55,7 @@ rfc5988s =
       )
 
 -}
-rfc5988 : Parser Link
+rfc5988 : Parser state Link
 rfc5988 =
     let
         mergeParameter : ( String, String ) -> Link -> Link
@@ -77,7 +76,7 @@ rfc5988 =
         mergeTargetAttribute ( key, value ) acc =
             Dict.insert key value acc
 
-        updateTargetAttributes : Link -> Parser Link
+        updateTargetAttributes : Link -> Parser state Link
         updateTargetAttributes link =
             sepBy (string ";") linkParam
                 |> map (\keyVals -> mergeParameters keyVals link)
@@ -89,7 +88,7 @@ rfc5988 =
             |> andThen updateTargetAttributes
 
 
-linkParam : Parser ( String, String )
+linkParam : Parser state ( String, String )
 linkParam =
     whitespace
         *> regex "[a-zA-Z]*"
@@ -103,11 +102,11 @@ linkParam =
             )
 
 
-whitespace : Parser String
+whitespace : Parser state String
 whitespace =
     regex "[ \t\x0D\n]*"
 
 
-carets : Parser res -> Parser res
+carets : Parser state res -> Parser state res
 carets =
     between (string "<") (string ">")

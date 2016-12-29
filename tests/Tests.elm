@@ -3,9 +3,19 @@ module Tests exposing (..)
 import Test exposing (..)
 import Expect
 import String
-import Combine exposing (parse)
+import Combine exposing (Parser, ParseErr)
 import Dict exposing (Dict)
 import RFC5988 exposing (rfc5988, rfc5988s, Link, emptyLink)
+
+
+parse : Parser () res -> String -> Result (ParseErr ()) res
+parse parser input =
+    case Combine.parse parser input of
+        Ok ( _, _, result ) ->
+            Ok result
+
+        Err err ->
+            Err err
 
 
 all : Test
@@ -13,13 +23,13 @@ all =
     describe "Parsing RFC5988 Link Headers"
         [ test "Parsing a basic link header value" <|
             \() ->
-                Expect.equal (parse rfc5988 "<http://urbit.org>; rel=\"start\"") ( Ok basicLink, { input = "", position = 31 } )
+                Expect.equal (parse rfc5988 "<http://urbit.org>; rel=\"start\"") (Ok basicLink)
         , test "Parsing a link with some additional target attributes" <|
             \() ->
-                Expect.equal (parse rfc5988 "<http://urbit.org>; rel=\"start\"; borg=\"unimatrixzero\"") ( Ok { basicLink | targetAttributes = Dict.insert "borg" "unimatrixzero" basicLink.targetAttributes }, { input = "", position = 53 } )
+                Expect.equal (parse rfc5988 "<http://urbit.org>; rel=\"start\"; borg=\"unimatrixzero\"") (Ok { basicLink | targetAttributes = Dict.insert "borg" "unimatrixzero" basicLink.targetAttributes })
         , test "Parsing a list of links" <|
             \() ->
-                Expect.equal (parse rfc5988s listOfLinksString) ( Ok listOfLinks, { input = "", position = 152 } )
+                Expect.equal (parse rfc5988s listOfLinksString) (Ok listOfLinks)
         ]
 
 
