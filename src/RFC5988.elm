@@ -86,7 +86,7 @@ rfc5988 =
             |> map (\uri -> { emptyLink | target = uri })
         )
             <* string ";"
-            `andThen` updateTargetAttributes
+            |> andThen updateTargetAttributes
 
 
 linkParam : Parser ( String, String )
@@ -94,7 +94,7 @@ linkParam =
     whitespace
         *> regex "[a-zA-Z]*"
         <* string "="
-        `andThen`
+        |> andThen
             (\key ->
                 string "\""
                     *> regex "[a-zA-Z]*"
